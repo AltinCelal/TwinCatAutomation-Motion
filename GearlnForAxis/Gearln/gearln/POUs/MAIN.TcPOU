@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{52817031-2ae7-47a1-964d-2a226199c577}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	master 		: AXIS_REF;
+	slave 		: AXIS_REF;
+	fb_Power	: MC_Power;
+	bEnable		: BOOL;
+	fb_Power2	: MC_Power;
+	fb_GearIn	: MC_GearIn;
+	enable		: BOOL;
+	fbMove 		: MC_MoveAbsolute;
+	mEnable		: BOOL;
+	fb_GearOut	: MC_GearOut;
+	nenable		: BOOL;
+	fb_Stop		: MC_Stop;
+	fb_halt 	:MC_Halt;
+	bStop 		: BOOL:=FALSE;
+	deger 		: LREAL;
+
+	d: BOOL;
+	dEnable: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+fb_Power(//For master
+	Axis:=master , 
+	Enable:= bEnable, 
+	Enable_Positive:= bEnable, 
+	Enable_Negative:= bEnable, 
+	Override:=100 );
+	
+fb_Power2(//for slave
+	Axis:=slave , 
+	Enable:=bEnable , 
+	Enable_Positive:=bEnable , 
+	Enable_Negative:= bEnable, 
+	Override:=100 );
+	
+
+fb_GearIn(
+	Master:=master , 
+	Slave:= slave, 
+	Execute:= enable, 
+	RatioNumerator:=5 , 
+	RatioDenominator:= 1);
+	
+fbMove(
+	Axis:=master , 
+	Execute:=mEnable , 
+	Position:=deger , 
+	Velocity:= 100 );
+	
+	
+fb_GearOut(
+	Slave:= slave, 
+	Execute:=nenable);
+	
+fb_Stop(
+	Axis:= master, 
+	Execute:=bStop);
+	
+
+fb_halt(
+	Axis:=master , 
+	Execute:= dEnable);
+	]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="148" Count="0" />
+      <LineId Id="14" Count="5" />
+      <LineId Id="186" Count="0" />
+      <LineId Id="35" Count="5" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="50" Count="4" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="82" Count="4" />
+      <LineId Id="108" Count="1" />
+      <LineId Id="101" Count="2" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="131" Count="2" />
+      <LineId Id="206" Count="0" />
+      <LineId Id="219" Count="0" />
+      <LineId Id="218" Count="0" />
+      <LineId Id="207" Count="1" />
+      <LineId Id="167" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
