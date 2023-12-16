@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{92a896a1-931c-4d48-b765-35f2e0252235}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	Axis_1 			: AXIS_REF;
+	fbPowerOn 		: MC_Power;
+	fbMoveAbs 		: MC_MoveAbsolute;
+	fbMoveAbs2 		: MC_MoveAbsolute;
+	fbMoveRel 		: MC_MoveRelative;
+	fbMoveRel2 		: MC_MoveRelative;
+
+	
+	mcBufferMode : MC_BufferMode;
+	bGotoPos1: BOOL := FALSE;
+	eMovePos : (E_Init, E_POS1,  E_POS2, E_POS3,E_POS4) := E_init;
+	bEnableAxis: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbPowerOn(Axis:= Axis_1, Enable:= bEnableAxis, Enable_Positive:=bEnableAxis, Enable_Negative:= bEnableAxis);
+
+IF bGotoPos1 THEN
+	eMovePos := E_POS1;
+END_IF
+CASE eMovePos OF
+	E_init:
+		fbMoveAbs(Axis:= Axis_1, Execute:= FALSE);
+		fbMoveRel(Axis:= Axis_1, Execute:= FALSE);
+	E_POS1:
+		fbMoveAbs(Axis:= Axis_1, Execute:= bGotoPos1, Position:= 200, Velocity:= 15, Acceleration:= 10, Deceleration:= 10, BufferMode:= MC_Buffered );
+		IF fbMoveAbs.Busy THEN
+			fbMoveAbs(Axis:= Axis_1, Execute:= FALSE);
+			bGotoPos1 := FALSE;
+			eMovePos := E_POS2;
+		END_IF
+	
+	E_POS2:
+		fbMoveRel(Axis:= Axis_1, Execute:= TRUE, Distance:= 550, Velocity:= 55, Acceleration:= 15, Deceleration:= 15, BufferMode:= MC_Aborting );
+		IF fbMoveRel.Active THEN
+			fbMoveRel(Axis:= Axis_1, Execute:= FALSE);
+			eMovePos := E_POS3;
+		END_IF
+		
+	E_POS3:
+	fbMoveRel2(Axis:= Axis_1, Execute:= TRUE, Distance:= 550, Velocity:= 80, Acceleration:= 15, Deceleration:= 15, BufferMode:= MC_Buffered );
+		IF fbMoveRel2.Active THEN
+			fbMoveRel2(Axis:= Axis_1, Execute:= FALSE);
+			eMovePos := E_POS4;
+		END_IF
+	E_POS4:
+	fbMoveAbs2(Axis:= Axis_1, Execute:= TRUE, Position:= 0, Velocity:= 300, Acceleration:= 10, Deceleration:= 10, BufferMode:= MC_Buffered );
+		IF fbMoveAbs2.Active THEN
+			fbMoveAbs2(Axis:= Axis_1, Execute:= FALSE);
+			eMovePos := E_Init;
+		END_IF
+		
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="30" Count="15" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="82" Count="2" />
+      <LineId Id="51" Count="1" />
+      <LineId Id="105" Count="1" />
+      <LineId Id="109" Count="3" />
+      <LineId Id="108" Count="0" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="115" Count="2" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="89" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
