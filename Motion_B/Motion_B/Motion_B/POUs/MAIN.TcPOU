@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{a17149fd-3241-4a85-836c-fb039aca864f}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	Axis_1 			: AXIS_REF;
+	fbPower 		: MC_Power;
+	bPower	 		: BOOL;
+	
+	fbMoveAbs 		: MC_MoveAbsolute;
+	bMoveAbs 		: BOOL;	
+	nPos 			: INT:=500;
+	
+	fbMoveRel 		: MC_MoveRelative;
+	bMoveRel 		: BOOL;
+	
+	
+	fbStop 			: MC_Stop; //acil durumlar için.
+	bStop 			: BOOL; //bir kere true oldu mu false yapmadan eksen hareket etmez
+	
+	
+	fbHalt 			: MC_Halt;//bir kere true oldu mu move fonksiyonlarından herhangi birine tekrar rising edge verirsek eksen hareket eder.
+	bHalt 			: BOOL;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbPower(
+	Axis:= Axis_1, 
+	Enable:=bPower , 
+	Enable_Positive:=bPower , 
+	Enable_Negative:=bPower , 
+	Override:= 100, 
+ );
+ 
+ fbMoveAbs(
+	Axis:=Axis_1 , 
+	Execute:= bMoveAbs, 
+	Position:= nPos, 
+	Velocity:=100 , 
+ );
+ 
+ fbMoveRel(
+	Axis:=Axis_1 , 
+	Execute:=bMoveRel , 
+	Distance:= 1000, 
+	Velocity:= 500, 
+ );
+
+ fbStop(
+	Axis:= Axis_1,
+	Execute:=bStop);
+	
+fbHalt(
+	Axis:=Axis_1 , 
+	Execute:=bHalt , 
+ );
+	]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="16" Count="5" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="30" Count="4" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="49" Count="4" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="76" Count="0" />
+      <LineId Id="78" Count="2" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="92" Count="2" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="90" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
