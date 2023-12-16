@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{5c50f173-78e5-4867-8be7-27e3f4f2ec7e}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	axis1 					: AXIS_REF;
+	axis2 					: AXIS_REF;
+	axis3 					: AXIS_REF;
+	axis4 					: AXIS_REF;
+	axis5 					: AXIS_REF;
+	fbPower1 				: MC_Power;
+	fbPower2 				: MC_Power;
+	fbPower3				: MC_Power;
+	fbPower4 				: MC_Power;
+	fbPower5 				: MC_Power;
+	
+	aEnable					: BOOL;
+	fb_GearInMultiMaster	: MC_GearInMultiMaster;
+	gEbable					: BOOL;
+	fbMove 					: MC_MoveAbsolute;
+	fbMove2 					: MC_MoveAbsolute;
+	fbMove3 					: MC_MoveAbsolute;
+	fbMove4 					: MC_MoveAbsolute;
+oran 							: DWORD:=2;
+	mEnable: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//aEnable eksenleri enable etmek için ,gEbable fb_GearInMultiMaster fonksiyon bloğunu çalıştımak için, menable eksenlere hareket verebilmek için
+fbPower1(
+	Axis:=axis1 , 
+	Enable:=aEnable, 
+	Enable_Positive:= aEnable, 
+	Enable_Negative:=aEnable , 
+	Override:=100 );
+	
+fbPower2(
+	Axis:=axis2 , 
+	Enable:=aEnable, 
+	Enable_Positive:= aEnable, 
+	Enable_Negative:=aEnable , 
+	Override:=100);
+	
+fbPower3(
+	Axis:=axis3 , 
+	Enable:=aEnable, 
+	Enable_Positive:= aEnable, 
+	Enable_Negative:=aEnable , 
+	Override:=100);
+	
+fbPower4(
+	Axis:=axis4 , 
+	Enable:=aEnable, 
+	Enable_Positive:= aEnable, 
+	Enable_Negative:=aEnable , 
+	Override:=100);
+	
+fbPower5(
+	Axis:=axis5 , 
+	Enable:=aEnable, 
+	Enable_Positive:= aEnable, 
+	Enable_Negative:=aEnable , 
+	Override:=100);
+	
+	
+fb_GearInMultiMaster(
+	Master1:= axis1, 
+	Master2:= axis2, 
+	Master3:= axis3, 
+	Master4:= axis4, 
+	Slave  := axis5, 
+	Enable := gEbable , 
+	GearRatio1:= 1, 
+	GearRatio2:= 2, 
+	GearRatio3:= 3, 
+	GearRatio4:= 4);
+
+fbMove(
+	Axis:= axis1, 
+	Execute:=mEnable , 
+	Position:=10 , 
+	Velocity:= 10 );
+	
+fbMove2(
+	Axis:= axis2, 
+	Execute:=mEnable , 
+	Position:=10 , 
+	Velocity:= 10 );
+
+fbMove3(
+	Axis:= axis3, 
+	Execute:=mEnable , 
+	Position:=10 , 
+	Velocity:= 10  );
+	
+fbMove4(
+	Axis:= axis4, 
+	Execute:=mEnable , 
+	Position:=10 , 
+	Velocity:= 10 );]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="234" Count="0" />
+      <LineId Id="17" Count="5" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="258" Count="0" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="62" Count="3" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="80" Count="3" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="98" Count="3" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="102" Count="1" />
+      <LineId Id="106" Count="10" />
+      <LineId Id="131" Count="5" />
+      <LineId Id="175" Count="0" />
+      <LineId Id="177" Count="1" />
+      <LineId Id="192" Count="1" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="194" Count="1" />
+      <LineId Id="210" Count="2" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="230" Count="2" />
+      <LineId Id="214" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
