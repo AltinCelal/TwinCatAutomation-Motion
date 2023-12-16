@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_ReversingSequence" Id="{c7e436bf-91e9-4e67-87d4-1b1022dd4912}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ReversingSequence
+VAR_INPUT
+	bEnable 		: BOOL;
+	fPosition1 		: LREAL; //pozisyon tiplerimiz LREAL'dir.
+	fPosition2 		: LREAL;
+	fVelocity		: LREAL;
+	tDelay 			: TIME;
+END_VAR
+VAR_OUTPUT
+	bError 			: BOOL;
+	sStatus 		: STRING;
+END_VAR
+VAR
+	fbPower			: MC_Power;
+	fbMove			: MC_MoveAbsolute;
+	nState			: INT;
+	fbTimer 		: TON;
+END_VAR
+VAR_IN_OUT
+	Axis		:AXIS_REF;
+//Axisler VAR_IN_OUT değişkenleridir sadece onun içinde tanımlanır!!.
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+fbPower(
+	Axis:=Axis , 
+	Enable:=TRUE , 
+	Enable_Positive:=TRUE, 
+	Enable_Negative:=TRUE , 
+	Override:=100  );
+
+	fbMove(
+	Axis:=Axis , 
+	Velocity:=  fVelocity);
+	
+	Axis.ReadStatus();
+	
+	fbTimer(PT:= tDelay);
+CASE nState OF
+	0: //eksenin Enable state'i
+		bError 		:=FALSE;
+		sStatus 	:='Beklemede';
+		IF bEnable AND Axis.Status.Operational THEN
+			nState :=10;
+			ELSIF NOT Axis.Status.Operational THEN
+				nState :=900;
+				sStatus :='Enable değil';
+		END_IF
+		
+	10: //Execute state'i
+	fbMove.Position :=fPosition1;
+	fbMove.Execute := TRUE;
+	IF Axis.Status.Moving THEN
+		sStatus 	:='1. noktaya Hareket ediyor';
+		nState :=20;
+		ELSIF Axis.Status.Error OR fbMove.Error THEN
+			sStatus 	:='1. noktaya giderken hataya geçti';
+			nstate :=900;
+	END_IF
+	
+	20://hareket kontrol state'i
+		IF fbMove.Done THEN
+			nState := 30;
+			fbMove.Execute :=FALSE;
+//2. hareketi de yapmak için false dedik.	
+			
+		END_IF
+		
+	30:
+		
+		fbTimer.IN:=TRUE;
+		sStatus:='1. Noktada bekliyor.';
+		
+		IF(fbTimer.Q) THEN
+			fbTimer.IN:=FALSE;
+			nState:=40;
+		END_IF
+		
+	40://2. hareket.
+		fbMove.Position :=fPosition2;
+		fbMove.Execute := TRUE;
+		IF Axis.Status.Moving THEN
+			sStatus 	:='2. noktaya Hareket ediyor';
+			nState :=50;
+		ELSIF Axis.Status.Error OR fbMove.Error THEN
+			sStatus 	:='2. noktaya giderken hataya geçti';
+			nstate :=900;
+		END_IF
+		
+	50:
+		IF fbMove.Done THEN
+			nState := 60;
+			fbMove.Execute :=FALSE;
+		END_IF
+		
+	60: 
+		fbTimer.IN:=TRUE;
+		sStatus:='2. Noktada bekliyor.';
+		
+		IF(fbTimer.Q) THEN
+			fbTimer.IN:=FALSE;
+			nState:=0;
+		END_IF
+		
+		
+	900:
+		bError := TRUE;
+		IF NOT bEnable THEN
+			fbTimer(IN:=FALSE);
+			nState:=0;
+		END_IF
+		
+END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="FB_ReversingSequence">
+      <LineId Id="192" Count="0" />
+      <LineId Id="50" Count="4" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="55" Count="1" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="75" Count="1" />
+      <LineId Id="119" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="27" Count="1" />
+      <LineId Id="30" Count="1" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="32" Count="2" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="77" Count="1" />
+      <LineId Id="80" Count="3" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="87" Count="2" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="115" Count="2" />
+      <LineId Id="145" Count="5" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="126" Count="0" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="130" Count="7" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="140" Count="1" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="142" Count="2" />
+      <LineId Id="152" Count="5" />
+      <LineId Id="151" Count="0" />
+      <LineId Id="158" Count="3" />
+      <LineId Id="163" Count="1" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="165" Count="0" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="26" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

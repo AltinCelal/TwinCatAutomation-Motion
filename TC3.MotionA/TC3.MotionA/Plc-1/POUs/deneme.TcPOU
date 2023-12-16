@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="deneme" Id="{c9c82607-25ec-4aa3-b1f6-505ff7513975}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK deneme
+VAR_INPUT//girilecek değerler
+	bEnable			: BOOL;
+	fPosition1		: LREAL;
+	fPosition2		: LREAL;
+	fVelocity		: LREAL;
+	tDelay 			: TIME;
+END_VAR
+VAR_OUTPUT
+	bError			: BOOL;
+	sStatus 		: STRING;
+END_VAR
+VAR//kullanıcının görmesine gerek yok!
+	fbPower 		: MC_Power;
+	fbPower2		: MC_Power;
+	fbMove 			: MC_MoveAbsolute;
+	fbMove2			: MC_MoveAbsolute;
+	nState 			: INT;
+	fbTimer 		: TON;
+END_VAR
+
+VAR_IN_OUT 
+	Axis 		:AXIS_REF;
+	Axis2		:AXIS_REF;
+END_VAR
+ 
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fbPower2(
+	Axis:= Axis2, 
+	Enable:= TRUE, 
+	Enable_Positive:= TRUE, 
+	Enable_Negative:= TRUE, 
+	Override:=  100);
+fbMove2(
+	Axis:= Axis2, 
+	Velocity:=fVelocity , 
+);
+fbPower(
+	Axis:= Axis, 
+	Enable:= TRUE , 
+	Enable_Positive:= TRUE, 
+	Enable_Negative:= TRUE, 
+	Override:=100);
+	
+	fbMove(
+	Axis:= Axis, 
+	Velocity:= fVelocity);
+	
+	Axis.ReadStatus();
+	Axis2.ReadStatus();
+	
+	fbTimer(PT:= tDelay);
+	CASE nState OF
+	0://eksen enable state
+			bError:=FALSE;
+			sStatus :='Beklemede';
+			IF bEnable AND Axis.Status.Operational AND Axis2.Status.Operational THEN
+				nState :=10;
+				ELSIF NOT  Axis.Status.Operational OR Axis2.Status.Operational THEN
+					nState :=900;
+					sStatus :='Enable değil';
+			END_IF
+			
+	10://Execute state'i.
+		fbMove.Position:=fPosition1;
+		fbMove2.Position:=fPosition2;
+		fbMove.Execute:=TRUE;
+		IF Axis.Status.Moving AND Axis2.Status.Moving THEN
+			sStatus 	:='Eksenler ilk noktaya Hareket ediyor.';
+			nState:=20;
+			ELSIF Axis.Status.Error OR fbMove.Error OR Axis2.Status.Error OR fbMove2.Error  THEN
+				sStatus :='1. noktaya giderken hataya geçti';
+				nState :=900;
+		END_IF
+			
+	20://hareket kontrol state'i.
+		IF fbMove.Done AND fbMove2.Done THEN
+			sStatus 		:='1. Noktaya vardı';
+			nState 			:=30;
+			fbMove.Execute:=FALSE;//2. hareket için false'a çektik.
+			fbMove2.Execute:=FALSE;
+			
+		END_IF
+		
+	30: //timer state
+		fbTimer.IN:= TRUE;
+		sStatus:='1. Noktada bekliyor.';
+		IF(fbTimer.Q) THEN
+			fbTimer.IN:=FALSE;
+			nState :=40;
+			
+		END_IF
+	40://2. noktaya hareket.
+		fbMove2.Position:=fPosition2;
+		fbMove.Position:=fPosition1;
+		fbMove.Execute:=TRUE;
+		fbMove2.Execute:=TRUE;
+		IF Axis.Status.Moving AND Axis2.Status.Moving THEN
+			sStatus :='2. noktaya hareket ediyor';
+			nState := 50;
+		ELSIF  Axis.Status.Error OR fbMove.Error OR Axis2.Status.Error OR fbMove2.Error THEN
+			sStatus :='2. noktaya geçerken hataya geçti';
+			nState :=900;
+		END_IF
+	50:
+		IF fbMove.Done AND fbMove2.Done THEN
+			sStatus :='2. noktaya vardı.';
+			nstate :=60;
+			fbMove.Execute:=FALSE;
+			
+		END_IF
+	60:
+		fbTimer.IN:=TRUE;
+		sStatus :='2. noktada bekliyor';
+		IF fbTimer.Q THEN
+			fbTimer.IN:=FALSE;			
+			nState :=0;
+		END_IF
+	900:
+		bError := TRUE;
+		IF NOT bEnable THEN
+			fbTimer(IN:=FALSE);
+			nState:=0;
+		END_IF
+		
+	END_CASE]]></ST>
+    </Implementation>
+    <LineIds Name="deneme">
+      <LineId Id="165" Count="5" />
+      <LineId Id="178" Count="1" />
+      <LineId Id="182" Count="0" />
+      <LineId Id="177" Count="0" />
+      <LineId Id="22" Count="4" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="41" Count="1" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="155" Count="1" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="57" Count="1" />
+      <LineId Id="61" Count="1" />
+      <LineId Id="64" Count="1" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="70" Count="1" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="72" Count="2" />
+      <LineId Id="193" Count="0" />
+      <LineId Id="75" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="81" Count="1" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="83" Count="2" />
+      <LineId Id="88" Count="1" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="194" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="115" Count="3" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="122" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="197" Count="0" />
+      <LineId Id="125" Count="1" />
+      <LineId Id="198" Count="0" />
+      <LineId Id="128" Count="1" />
+      <LineId Id="131" Count="3" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="138" Count="2" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="143" Count="0" />
+      <LineId Id="159" Count="0" />
+      <LineId Id="144" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="149" Count="4" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="59" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{c6472159-a4a5-45b7-82ac-c39e0e244349}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	axis_1 			:AXIS_REF;
+	axis_2			:AXIS_REF;
+	fbEnable		:MC_Power;
+	bEnable			:BOOL;
+	fbAbsolute		:MC_MoveAbsolute;
+	bAbsolute		:BOOL;
+	fbRelative		:MC_MoveRelative;
+	bRelative		:BOOL;
+//Axis: INT; otomatik oluşturdu neden integer?
+	
+	
+	
+	fbReversingSequence: FB_ReversingSequence;
+	fPosition1: LREAL;
+	fPosition2: LREAL;
+	fVelocity: LREAL;
+	tDelay: TIME;
+	bError: BOOL;
+	sStatus: STRING;
+	deneme: deneme;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*fbEnable(
+	Axis:= axis_1 , //eğer axis vermezsek hata alırız.
+	Enable:=bEnable , 
+	Enable_Positive:=bEnable , 
+	Enable_Negative:= bEnable, 
+	Override:= 100//sistemin ne kadar kullanılacağı ???
+ );
+fbAbsolute(
+	Axis:=axis_1 , 
+	Execute:= bAbsolute, 
+	Position:= 1500, 
+	Velocity:= 500);
+	
+fbRelative(
+
+	Axis:=axis_1 , 
+	Execute:= bRelative, 
+	Distance:= 1000, 
+	Velocity:=500 );	
+	*)
+	
+	(*fbReversingSequence(
+	bEnable:=bEnable , 
+	fPosition1:=fPosition1 , 
+	fPosition2:= fPosition2, 
+	fVelocity:= fVelocity, 
+	tDelay:= tDelay, 
+	bError=> bError, 
+	sStatus=>sStatus , 
+	Axis:= axis_1);*)
+	deneme(
+	bEnable:=bEnable , 
+	fPosition1:=fPosition1 , 
+	fPosition2:=fPosition2 , 
+	fVelocity:=fVelocity , 
+	tDelay:=tDelay , 
+	bError=>bError , 
+	sStatus=>sStatus , 
+	Axis:=axis_1 , 
+	Axis2:=axis_2 );]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="34" Count="4" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="53" Count="3" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="95" Count="0" />
+      <LineId Id="74" Count="2" />
+      <LineId Id="69" Count="1" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="97" Count="7" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="137" Count="8" />
+      <LineId Id="126" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
